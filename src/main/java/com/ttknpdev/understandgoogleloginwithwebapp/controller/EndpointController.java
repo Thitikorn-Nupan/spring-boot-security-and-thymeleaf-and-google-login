@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.security.Principal;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -18,17 +17,20 @@ import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequestMapping(value = "/api")
-public class Endpoint {
-    private Logback logback;
+public class EndpointController {
+    private final Logback logback;
 
-    public Endpoint() {
-        logback = new Logback(Endpoint.class);
+    public EndpointController() {
+        logback = new Logback(EndpointController.class);
     }
 
     // External any mail  can login , Internal only gmail can login
     @GetMapping(value = "/user/profile")
     public String userProfilePage(OAuth2AuthenticationToken authentication, Model model) {
-       logback.log.info("authentication.getDetails() {}",authentication.getDetails()); // WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=9DE9F68356711C7E76D228EEBC063152]
+       logback.log.info("authentication.getDetails() {}",authentication.getDetails());
+       /*
+         WebAuthenticationDetails [RemoteIpAddress=0:0:0:0:0:0:0:1, SessionId=9DE9F68356711C7E76D228EEBC063152]
+       */
        logback.log.info("authentication.getPrincipal() {}",authentication.getPrincipal());
         /*
         "Name":[
@@ -64,13 +66,14 @@ public class Endpoint {
         ]
         */
         logback.log.info("authentication.getPrincipal() {}",authentication.getAuthorities());
-        // [OIDC_USER, SCOPE_https://www.googleapis.com/auth/userinfo.email, SCOPE_https://www.googleapis.com/auth/userinfo.profile, SCOPE_openid]
+        /*
+         [OIDC_USER, SCOPE_https://www.googleapis.com/auth/userinfo.email, SCOPE_https://www.googleapis.com/auth/userinfo.profile, SCOPE_openid]
+        */
 
         OAuth2User oAuth2User = authentication.getPrincipal();
 
         String exp = oAuth2User.getAttribute("exp").toString();
         String iat = oAuth2User.getAttribute("iat").toString();
-
         String expFormat = getDatetimeFormat(exp);
         String iatFormat = getDatetimeFormat(iat);
 
@@ -84,8 +87,18 @@ public class Endpoint {
     }
 
     @GetMapping(value = "/user")
-    public ResponseEntity userInfo(Principal user) {
+    public ResponseEntity<Principal> userInfo(Principal user) {
         return ResponseEntity.ok(user);
+    }
+
+    @GetMapping(value = "/login")
+    public String userLoginPage() {
+        return "user-login";
+    }
+
+    @GetMapping(value = "/hello-world")
+    public ResponseEntity<String> helloWorld() {
+        return ResponseEntity.ok("Hello World");
     }
 
     private String getDatetimeFormat(String datetime) {
@@ -97,17 +110,5 @@ public class Endpoint {
         LocalDateTime localDateTime = instant.atZone(zoneId).toLocalDateTime();
         return localDateTime.format(formatter);
     }
-
-
-    // permit all ***
-    @GetMapping(value = "/login")
-    public String userLoginPage() {
-        return "user-login";
-    }
-    @GetMapping(value = "/hello-world")
-    public ResponseEntity helloWorld() {
-        return ResponseEntity.ok("Hello World");
-    }
-
 
 }

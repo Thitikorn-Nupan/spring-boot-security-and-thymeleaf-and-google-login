@@ -12,11 +12,10 @@ import org.springframework.security.oauth2.core.oidc.IdTokenClaimNames;
 
 @Configuration
 public class GoogleLoginConfig {
-    private String clientId;
 
-    private String clientSecret;
-
-    private String pathRedirect;
+    private final String clientId;
+    private final String clientSecret;
+    private final String pathRedirect;
 
     // work for import like key classpath as spring.config.import=classpath:<Path> another case won work
     public GoogleLoginConfig(@Value("${CLIENT.ID}") String clientId, @Value("${CLIENT.SECRET.ID}") String clientSecret, @Value("${PATH.REDIRECT}") String pathRedirect) {
@@ -30,8 +29,8 @@ public class GoogleLoginConfig {
         return new InMemoryClientRegistrationRepository(this.googleClientRegistration());
     }
 
-    /*
-        May can use Spring Boot Auto-configuration set all detail on application.yml, application.properties
+    /**
+        You can use Spring Boot Auto-configuration set all detail on application.yml, application.properties
     */
     private ClientRegistration googleClientRegistration() {
         return ClientRegistration.withRegistrationId("google")
